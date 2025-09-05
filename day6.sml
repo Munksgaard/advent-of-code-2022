@@ -1,15 +1,5 @@
 use "util.sml";
 
-val dedup =
-    let fun aux (x :: xs) (y :: ys) =
-            if x = y then aux (x :: xs) ys else aux (y :: x :: xs) ys
-          | aux [] (y :: ys) = aux [y] ys
-          | aux acc [] = rev acc
-    in aux [] end
-
-val unique =
-    dedup o Listsort.sort Char.compare
-
 fun solve1 i (a :: b :: c :: rest) (x :: xs) =
     if length (unique [a,b,c,x]) <> 4 then
         solve1 (i + 1) (x :: a :: b :: c :: rest) xs

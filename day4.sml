@@ -1,7 +1,7 @@
 use "util.sml";
 
 fun toRange xs =
-    let val (first, rest) = splitAt' #"-" xs
+    let val (first, _ :: rest) = break #"-" xs
     in (valOf (Int.fromString (implode first)), valOf (Int.fromString (implode rest)))
     end
 
@@ -19,13 +19,13 @@ fun filterLine f (first, rest) =
 
 fun solve1 input =
     lines input
-          |> map (splitAt' #"," o explode)
+          |> map (breakExclusive #"," o explode)
           |> List.filter (filterLine isFullyContained)
           |> length
 
 fun solve2 input : int =
     lines input
-          |> map (splitAt' #"," o explode)
+          |> map (breakExclusive #"," o explode)
           |> List.filter (filterLine overlaps)
           |> length
 

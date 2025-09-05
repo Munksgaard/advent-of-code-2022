@@ -60,27 +60,29 @@ val trimr = Substring.string o
             Substring.full
 
 
-fun splitIndex i xs = (List.take (xs, i), List.drop (xs, i))
+fun breakIndex i xs = (List.take (xs, i), List.drop (xs, i))
 
-fun splitAt x =
-    let fun aux acc [] = raise Empty
-          | aux acc (y :: ys) = if x = y then
+fun breakBy f =
+    let fun aux acc [] = (rev acc, [])
+          | aux acc (y :: ys) = if f y then
                                     (rev acc, y :: ys)
                                 else
                                     aux (y :: acc) ys
     in aux []
     end
 
+val break = breakBy o curry op=
+
 (* The exclusive version, the splitter is not included in the result *)
-fun splitAt' x ys =
-    let val (first, rest) = splitAt x ys
+fun breakExclusive x ys =
+    let val (first, rest) = break x ys
     in (first, tl rest)
     end
 
 fun groupCount i =
     let fun aux acc [] = rev acc
           | aux acc xs =
-            let val (first, rest) = splitIndex i xs
+            let val (first, rest) = breakIndex i xs
             in aux (first :: acc) rest
             end
     in aux []
@@ -102,3 +104,41 @@ fun modify f i xs =
 
 fun update y = modify (const y)
 
+fun dedup xs =
+    let fun aux (x :: xs) (y :: ys) =
+            if x = y then aux (x :: xs) ys else aux (y :: x :: xs) ys
+          | aux [] (y :: ys) = aux [y] ys
+          | aux acc [] = rev acc
+    in aux [] xs end
+
+fun uniqueBy f =
+    dedup o Listsort.sort f
+
+val unique =
+    uniqueBy Char.compare
+
+fun vtranspose v =
+    Vector.tabulate (Vector.length (Vector.sub (v, 0)),
+                     fn i => Vector.tabulate (Vector.length v,
+                                              fn j => Vector.sub (Vector.sub (v, j), i)))
+fun pair x y = (x,y)
+
+fun zipWith f =
+    let fun aux acc [] _ = rev acc
+          | aux acc _ [] = rev acc
+          | aux acc (x :: xs) (y :: ys) = aux (f x y :: acc) xs ys
+    in aux []
+    end
+
+fun zip x y = zipWith pair x y
+
+fun splitBy f =
+    let fun aux acc [] = rev acc
+          | aux acc xs =
+            case breakBy f xs of
+                (l, []) => rev (l :: acc)
+              | (l, _ :: r) => aux (l :: acc) r
+    in aux []
+    end
+
+val split = splitBy o curry op=

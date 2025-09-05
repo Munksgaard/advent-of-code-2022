@@ -27,7 +27,7 @@ fun executeMove f (move, stack) =
     end
 
 fun solver f input =
-    let val (stack_description, instructions) = splitAt' "" (lines input)
+    let val (stack_description, _ :: instructions) = break "" (lines input)
         val stack = toStack stack_description
     in implode (map hd (foldl (executeMove f) stack (map words instructions)))
     end
